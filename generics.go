@@ -2,6 +2,25 @@ package generics
 
 import "reflect"
 
+func Filter(i interface{}, filter interface{}) interface{} {
+	fun := reflect.ValueOf(filter)
+	v := reflect.ValueOf(i)
+	out := reflect.New(reflect.TypeOf(i))
+	for i := 0; i < v.Len(); i++ {
+		el := v.Index(i)
+		res := fun.Call([]reflect.Value{el})
+		if len(res) != 1 {
+			panic("must return bool")
+		}
+		v := res[0]
+		if v.Bool() {
+			n := reflect.Append(out.Elem(), el)
+			out.Elem().Set(n)
+		}
+	}
+	return out.Elem().Interface()
+}
+
 func Last(i interface{}) interface{} {
 	v := reflect.ValueOf(i)
 	if v.Len() == 0 {
