@@ -1,6 +1,36 @@
 package generics
 
-import "reflect"
+import (
+	"reflect"
+)
+
+func Keys(i interface{}) interface{} {
+	t := reflect.TypeOf(i)
+	v := reflect.ValueOf(i)
+	out := reflect.New(reflect.SliceOf(t.Key()))
+	for _, k := range v.MapKeys() {
+		n := reflect.Append(out.Elem(), k)
+		out.Elem().Set(n)
+	}
+
+	return out.Elem().Interface()
+}
+
+func Index(i interface{}, fn interface{}) interface{} {
+	el := reflect.ValueOf(i).Type().Elem()
+	m := reflect.MakeMap(reflect.MapOf(reflect.TypeOf("test"), el))
+	fun := reflect.ValueOf(fn)
+	v := reflect.ValueOf(i)
+	for i := 0; i < v.Len(); i++ {
+		el := v.Index(i)
+		res := fun.Call([]reflect.Value{el})
+		if len(res) != 1 {
+			panic("expected one string to return")
+		}
+		m.SetMapIndex(res[0], el)
+	}
+	return m.Interface()
+}
 
 func Reject(i interface{}, rejecter interface{}) interface{} {
 	return Select(i, negate(rejecter))

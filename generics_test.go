@@ -2,12 +2,55 @@ package generics
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 )
 
 type record struct {
 	Name   string
 	Amount int
+}
+
+func TestKeys(t *testing.T) {
+	m := map[string]int{
+		"one":   1,
+		"two":   2,
+		"three": 3,
+	}
+
+	keys := Keys(m).([]string)
+	sort.Strings(keys)
+	tests := []struct{ Has, Want interface{} }{
+		{len(keys), 3},
+		{keys[0], "one"},
+	}
+
+	for i, tc := range tests {
+		if tc.Want != tc.Has {
+			t.Errorf("%d: want %#v (%T), was %#v (%T)", i+1, tc.Want, tc.Want, tc.Has, tc.Has)
+		}
+	}
+
+}
+
+func TestIndex(t *testing.T) {
+	records := []*record{
+		{Name: "one"},
+		{Name: "two"},
+		{Name: "three"},
+	}
+
+	m := Index(records, func(r *record) string { return r.Name }).(map[string]*record)
+
+	tests := []struct{ Has, Want interface{} }{
+		{len(m), 3},
+		{m["one"].Name, "one"},
+	}
+	for i, tc := range tests {
+		if tc.Want != tc.Has {
+			t.Errorf("%d: want %#v (%T), was %#v (%T)", i+1, tc.Want, tc.Want, tc.Has, tc.Has)
+		}
+	}
 }
 
 func TestReject(t *testing.T) {
