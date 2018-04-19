@@ -10,7 +10,30 @@ type record struct {
 	Amount int
 }
 
-func TestFilter(t *testing.T) {
+func TestReject(t *testing.T) {
+	records := []*record{
+		{Amount: 1},
+		{Amount: 2},
+		{Amount: 3},
+	}
+	filter := func(r *record) bool {
+		return r.Amount >= 2
+	}
+
+	filtered := Reject(records, filter).([]*record)
+
+	tests := []struct{ Has, Want interface{} }{
+		{len(filtered), 1},
+		{filtered[0].Amount, 1},
+	}
+	for i, tc := range tests {
+		if tc.Want != tc.Has {
+			t.Errorf("%d: want %#v (%T), was %#v (%T)", i+1, tc.Want, tc.Want, tc.Has, tc.Has)
+		}
+	}
+}
+
+func TestSelect(t *testing.T) {
 	records := []*record{
 		{Amount: 1},
 		{Amount: 2},
@@ -21,13 +44,13 @@ func TestFilter(t *testing.T) {
 		return r.Amount >= 2
 	}
 
-	filtered := Filter(records, filter).([]*record)
+	filtered := Select(records, filter).([]*record)
 
 	tests := []struct{ Has, Want interface{} }{
 		{len(filtered), 2},
 		{filtered[0].Amount, 2},
 		{filtered[1].Amount, 3},
-		{len(Filter(records, func(r *record) bool { return false }).([]*record)), 0},
+		{len(Select(records, func(r *record) bool { return false }).([]*record)), 0},
 	}
 	for i, tc := range tests {
 		if tc.Want != tc.Has {

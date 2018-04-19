@@ -2,7 +2,15 @@ package generics
 
 import "reflect"
 
+func Reject(i interface{}, rejecter interface{}) interface{} {
+	return Select(i, negate(rejecter))
+}
+
 func Filter(i interface{}, filter interface{}) interface{} {
+	return Select(i, filter)
+}
+
+func Select(i interface{}, filter interface{}) interface{} {
 	fun := reflect.ValueOf(filter)
 	v := reflect.ValueOf(i)
 	out := reflect.New(reflect.TypeOf(i))
@@ -19,6 +27,17 @@ func Filter(i interface{}, filter interface{}) interface{} {
 		}
 	}
 	return out.Elem().Interface()
+}
+
+func negate(fn interface{}) interface{} {
+	return func(i interface{}) bool {
+		v := reflect.ValueOf(fn)
+		res := v.Call([]reflect.Value{reflect.ValueOf(i)})
+		if len(res) != 1 {
+			panic("must return bool")
+		}
+		return !res[0].Bool()
+	}
 }
 
 func Last(i interface{}) interface{} {
