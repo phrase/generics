@@ -53,6 +53,35 @@ func Keys(i interface{}) interface{} {
 	return out.Elem().Interface()
 }
 
+func Group(i interface{}, fn interface{}) interface{} {
+	el := reflect.ValueOf(i).Type().Elem()
+
+	sel := el
+	if el.Kind() == reflect.Ptr {
+		sel = sel.Elem()
+	}
+
+	tp, getter := newGetter(sel, fn)
+
+	st := reflect.SliceOf(el)
+	m := reflect.MakeMap(reflect.MapOf(tp, st))
+
+	v := reflect.ValueOf(i)
+	for i := 0; i < v.Len(); i++ {
+		el := v.Index(i)
+		v := getter(el)
+		sl := m.MapIndex(v)
+		if sl == reflect.Zero(st) || sl.Kind() == reflect.Invalid {
+			sl = reflect.New(st)
+			m.SetMapIndex(v, sl.Elem())
+			sl = sl.Elem()
+		}
+		n := reflect.Append(sl, el)
+		m.SetMapIndex(v, n)
+	}
+	return m.Interface()
+}
+
 func Index(i interface{}, fn interface{}) interface{} {
 	el := reflect.ValueOf(i).Type().Elem()
 

@@ -11,6 +11,27 @@ type record struct {
 	Amount int
 }
 
+func TestGroup(t *testing.T) {
+	records := []*record{
+		{Name: "one", Amount: 1},
+		{Name: "two", Amount: 1},
+		{Name: "three", Amount: 2},
+	}
+	res := Group(records, "Amount").(map[int][]*record)
+	tests := []struct{ Has, Want interface{} }{
+		{len(res), 2},
+		{len(res[1]), 2},
+		{res[1][0].Name, "one"},
+		{res[1][1].Name, "two"},
+		{res[2][0].Name, "three"},
+	}
+	for i, tc := range tests {
+		if tc.Want != tc.Has {
+			t.Errorf("%d: want %#v (%T), was %#v (%T)", i+1, tc.Want, tc.Want, tc.Has, tc.Has)
+		}
+	}
+}
+
 func TestMap(t *testing.T) {
 	records := []*record{
 		{Name: "one", Amount: 1},
