@@ -4,28 +4,30 @@ import (
 	"reflect"
 )
 
-func Attributes(i interface{}, name string) interface{} {
+func Map(i interface{}, fn interface{}) interface{} {
 	v := reflect.ValueOf(i)
 	t := reflect.TypeOf(i)
 	el := t.Elem()
 	if el.Kind() == reflect.Ptr {
 		el = el.Elem()
 	}
-	field, ok := el.FieldByName(name)
-	if !ok {
-		panic("no attribute with name " + name)
+
+	tp, getter := newGetter(el, fn)
+	if getter == nil {
+		panic("getter is null")
 	}
-	out := reflect.New(reflect.SliceOf(field.Type))
+	out := reflect.New(reflect.SliceOf(tp))
 
 	for i := 0; i < v.Len(); i++ {
 		el := v.Index(i)
-		if el.Kind() == reflect.Ptr {
-			el = el.Elem()
-		}
-		fv := el.FieldByName(name)
+		fv := getter(el)
 		out.Elem().Set(reflect.Append(out.Elem(), fv))
 	}
 	return out.Elem().Interface()
+}
+
+func Attributes(i interface{}, name string) interface{} {
+	return Map(i, name)
 }
 
 func Values(i interface{}) interface{} {
@@ -53,16 +55,21 @@ func Keys(i interface{}) interface{} {
 
 func Index(i interface{}, fn interface{}) interface{} {
 	el := reflect.ValueOf(i).Type().Elem()
-	m := reflect.MakeMap(reflect.MapOf(reflect.TypeOf("test"), el))
-	fun := reflect.ValueOf(fn)
+
+	sel := el
+	if el.Kind() == reflect.Ptr {
+		sel = sel.Elem()
+	}
+
+	tp, getter := newGetter(sel, fn)
+
+	m := reflect.MakeMap(reflect.MapOf(tp, el))
+
 	v := reflect.ValueOf(i)
 	for i := 0; i < v.Len(); i++ {
 		el := v.Index(i)
-		res := fun.Call([]reflect.Value{el})
-		if len(res) != 1 {
-			panic("expected one string to return")
-		}
-		m.SetMapIndex(res[0], el)
+		v := getter(el)
+		m.SetMapIndex(v, el)
 	}
 	return m.Interface()
 }
@@ -92,6 +99,35 @@ func Select(i interface{}, filter interface{}) interface{} {
 		}
 	}
 	return out.Elem().Interface()
+}
+
+func newGetter(el reflect.Type, i interface{}) (sliceType reflect.Type, fn func(v reflect.Value) reflect.Value) {
+	fnv := reflect.ValueOf(i)
+	switch fnv.Kind() {
+	case reflect.String:
+		name := fnv.String()
+		field, ok := el.FieldByName(name)
+		if !ok {
+			panic("no attribute with name " + name)
+		}
+		return field.Type, func(v reflect.Value) reflect.Value {
+			if v.Kind() == reflect.Ptr {
+				v = v.Elem()
+			}
+			return v.FieldByName(name)
+		}
+	case reflect.Func:
+		tp := fnv.Type().Out(0)
+		return tp, func(v reflect.Value) reflect.Value {
+			res := fnv.Call([]reflect.Value{v})
+			if len(res) != 1 {
+				panic("must return one argument")
+			}
+			return res[0]
+		}
+	default:
+		panic("kind " + fnv.Kind().String() + " not supported")
+	}
 }
 
 func negate(fn interface{}) interface{} {

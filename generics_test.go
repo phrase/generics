@@ -11,6 +11,28 @@ type record struct {
 	Amount int
 }
 
+func TestMap(t *testing.T) {
+	records := []*record{
+		{Name: "one", Amount: 1},
+		{Name: "two", Amount: 1},
+		{Name: "three", Amount: 2},
+	}
+	amounts := Map(records, "Amount").([]int)
+	mapper := func(r *record) string { return r.Name }
+	names := Map(records, mapper).([]string)
+
+	tests := []struct{ Has, Want interface{} }{
+		{fmt.Sprintf("%+v", names), "[one two three]"},
+		{len(amounts), 3},
+		{amounts[0], 1},
+	}
+	for i, tc := range tests {
+		if tc.Want != tc.Has {
+			t.Errorf("%d: want %#v (%T), was %#v (%T)", i+1, tc.Want, tc.Want, tc.Has, tc.Has)
+		}
+	}
+}
+
 func TestAttribute(t *testing.T) {
 	records := []*record{
 		{Name: "Parrot", Amount: 3},
@@ -84,10 +106,13 @@ func TestIndex(t *testing.T) {
 	}
 
 	m := Index(records, func(r *record) string { return r.Name }).(map[string]*record)
+	m2 := Index(records, "Name").(map[string]*record)
 
 	tests := []struct{ Has, Want interface{} }{
 		{len(m), 3},
 		{m["one"].Name, "one"},
+		{len(m2), 3},
+		{m2["one"].Name, "one"},
 	}
 	for i, tc := range tests {
 		if tc.Want != tc.Has {
