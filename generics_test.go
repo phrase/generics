@@ -150,13 +150,13 @@ func TestTail(t *testing.T) {
 	records := []*record{{Name: "foo"}}
 
 	tests := []struct{ Input, Want interface{} }{
-		{Tail(in, 1).([]string), "[three]"},
-		{Tail(in, 0).([]string), "[]"},
-		{Tail(in, 2).([]string), "[two three]"},
-		{Tail(in, 5).([]string), "[one two three]"},
-		{Tail([]string{}, 5).([]string), "[]"},
-		{Tail([]string{}, -1).([]string), "[]"},
-		{Tail(records, 1).([]*record)[0].Name, "foo"},
+		{LastN(in, 1).([]string), "[three]"},
+		{LastN(in, 0).([]string), "[]"},
+		{LastN(in, 2).([]string), "[two three]"},
+		{LastN(in, 5).([]string), "[one two three]"},
+		{LastN([]string{}, 5).([]string), "[]"},
+		{LastN([]string{}, -1).([]string), "[]"},
+		{LastN(records, 1).([]*record)[0].Name, "foo"},
 	}
 	for i, tc := range tests {
 		has := fmt.Sprintf("%v", tc.Input)
@@ -208,12 +208,12 @@ func TestLast(t *testing.T) {
 func TestHead(t *testing.T) {
 	in := []string{"one", "two", "three"}
 	tests := []struct{ Input, Want interface{} }{
-		{Head(in, 1).([]string), "[one]"},
-		{Head(in, 0).([]string), "[]"},
-		{Head(in, 2).([]string), "[one two]"},
-		{Head(in, 5).([]string), "[one two three]"},
-		{Head([]string{}, 5).([]string), "[]"},
-		{Head([]string{}, -1).([]string), "[]"},
+		{FirstN(in, 1).([]string), "[one]"},
+		{FirstN(in, 0).([]string), "[]"},
+		{FirstN(in, 2).([]string), "[one two]"},
+		{FirstN(in, 5).([]string), "[one two three]"},
+		{FirstN([]string{}, 5).([]string), "[]"},
+		{FirstN([]string{}, -1).([]string), "[]"},
 	}
 	for i, tc := range tests {
 		has := fmt.Sprintf("%v", tc.Input)

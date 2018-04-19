@@ -121,7 +121,7 @@ func First(i interface{}) interface{} {
 	return v.Index(0).Interface()
 }
 
-func Head(i interface{}, n int) interface{} {
+func FirstN(i interface{}, n int) interface{} {
 	t := reflect.TypeOf(i)
 	v := reflect.ValueOf(i)
 	l := v.Len()
@@ -139,7 +139,7 @@ func Head(i interface{}, n int) interface{} {
 	return out.Elem().Interface()
 }
 
-func Tail(i interface{}, n int) interface{} {
+func LastN(i interface{}, n int) interface{} {
 	t := reflect.TypeOf(i)
 	v := reflect.ValueOf(i)
 	l := v.Len()
