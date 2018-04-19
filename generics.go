@@ -4,6 +4,18 @@ import (
 	"reflect"
 )
 
+func Values(i interface{}) interface{} {
+	t := reflect.TypeOf(i)
+	v := reflect.ValueOf(i)
+	out := reflect.New(reflect.SliceOf(t.Elem()))
+	for _, k := range v.MapKeys() {
+		el := v.MapIndex(k)
+		n := reflect.Append(out.Elem(), el)
+		out.Elem().Set(n)
+	}
+	return out.Elem().Interface()
+}
+
 func Keys(i interface{}) interface{} {
 	t := reflect.TypeOf(i)
 	v := reflect.ValueOf(i)
@@ -12,7 +24,6 @@ func Keys(i interface{}) interface{} {
 		n := reflect.Append(out.Elem(), k)
 		out.Elem().Set(n)
 	}
-
 	return out.Elem().Interface()
 }
 

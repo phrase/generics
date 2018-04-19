@@ -11,6 +11,27 @@ type record struct {
 	Amount int
 }
 
+func TestValues(t *testing.T) {
+	m := map[int]string{
+		1: "one",
+		2: "two",
+		3: "three",
+	}
+
+	values := Values(m).([]string)
+	sort.Strings(values)
+
+	tests := []struct{ Has, Want interface{} }{
+		{len(values), 3},
+		{values[0], "one"},
+	}
+	for i, tc := range tests {
+		if tc.Want != tc.Has {
+			t.Errorf("%d: want %#v (%T), was %#v (%T)", i+1, tc.Want, tc.Want, tc.Has, tc.Has)
+		}
+	}
+}
+
 func TestKeys(t *testing.T) {
 	m := map[string]int{
 		"one":   1,
