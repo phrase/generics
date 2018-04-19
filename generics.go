@@ -4,6 +4,30 @@ import (
 	"reflect"
 )
 
+func Attributes(i interface{}, name string) interface{} {
+	v := reflect.ValueOf(i)
+	t := reflect.TypeOf(i)
+	el := t.Elem()
+	if el.Kind() == reflect.Ptr {
+		el = el.Elem()
+	}
+	field, ok := el.FieldByName(name)
+	if !ok {
+		panic("no attribute with name " + name)
+	}
+	out := reflect.New(reflect.SliceOf(field.Type))
+
+	for i := 0; i < v.Len(); i++ {
+		el := v.Index(i)
+		if el.Kind() == reflect.Ptr {
+			el = el.Elem()
+		}
+		fv := el.FieldByName(name)
+		out.Elem().Set(reflect.Append(out.Elem(), fv))
+	}
+	return out.Elem().Interface()
+}
+
 func Values(i interface{}) interface{} {
 	t := reflect.TypeOf(i)
 	v := reflect.ValueOf(i)
