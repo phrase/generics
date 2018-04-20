@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
+	"time"
 )
 
 func Sort(list interface{}, fn interface{}) {
@@ -42,6 +43,9 @@ func sorter(list interface{}, fn interface{}) func(a, b int) bool {
 		case float64:
 			bs := vB.Interface().(float64)
 			return as < bs
+		case time.Time:
+			bs := vB.Interface().(time.Time)
+			return as.Before(bs)
 		default:
 			panic("type " + fmt.Sprintf("%T", as) + " not supported")
 		}
