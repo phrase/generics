@@ -1,6 +1,7 @@
 package generics
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
 )
@@ -38,6 +39,11 @@ func sorter(list interface{}, fn interface{}) func(a, b int) bool {
 		case int:
 			bs := vB.Interface().(int)
 			return as < bs
+		case float64:
+			bs := vB.Interface().(float64)
+			return as < bs
+		default:
+			panic("type " + fmt.Sprintf("%T", as) + " not supported")
 		}
 		return false
 	}
