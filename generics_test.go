@@ -11,6 +11,29 @@ type record struct {
 	Amount int
 }
 
+func TestSort(t *testing.T) {
+	records := []*record{
+		{Name: "one", Amount: 1},
+		{Name: "two", Amount: 1},
+		{Name: "three", Amount: 2},
+	}
+
+	t.Run("with attribute name", func(t *testing.T) {
+		SortReverse(records, "Amount")
+		if has := records[0].Name; has != "three" {
+			t.Errorf("has was %q", has)
+		}
+	})
+
+	t.Run("with function", func(t *testing.T) {
+		SortReverse(records, func(r *record) int { return r.Amount })
+		if has := records[0].Name; has != "three" {
+			t.Errorf("has was %q", has)
+		}
+	})
+
+}
+
 func TestGroup(t *testing.T) {
 	records := []*record{
 		{Name: "one", Amount: 1},

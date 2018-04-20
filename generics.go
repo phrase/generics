@@ -2,7 +2,46 @@ package generics
 
 import (
 	"reflect"
+	"sort"
 )
+
+func Sort(list interface{}, fn interface{}) {
+	s := sorter(list, fn)
+	sort.Slice(list, s)
+}
+
+func SortReverse(list interface{}, fn interface{}) {
+	s := sorter(list, fn)
+	r := func(a, b int) bool {
+		return !s(a, b)
+	}
+	sort.Slice(list, r)
+}
+
+func sorter(list interface{}, fn interface{}) func(a, b int) bool {
+	v := reflect.ValueOf(list)
+	//fnv := reflect.ValueOf(fn)
+
+	etp := reflect.TypeOf(list).Elem()
+	if etp.Kind() == reflect.Ptr {
+		etp = etp.Elem()
+	}
+	_, getter := newGetter(etp, fn)
+	_ = getter
+	return func(a, b int) bool {
+		vA := getter(v.Index(a))
+		vB := getter(v.Index(b))
+		switch as := vA.Interface().(type) {
+		case string:
+			bs := vB.Interface().(string)
+			return as < bs
+		case int:
+			bs := vB.Interface().(int)
+			return as < bs
+		}
+		return false
+	}
+}
 
 func Map(i interface{}, fn interface{}) interface{} {
 	v := reflect.ValueOf(i)
