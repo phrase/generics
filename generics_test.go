@@ -34,6 +34,49 @@ func TestSort(t *testing.T) {
 
 }
 
+func TestFoldLeft(t *testing.T) {
+	ints := []int{1, 2, 3}
+
+	t.Run("square of elements", func(t *testing.T) {
+		folder := func(list []int, value int) []int { return append(list, value*value) }
+		res := FoldLeft(ints, folder).([]int)
+		if v := fmt.Sprintf("%v", res); v != "[1 4 9]" {
+			t.Errorf("was %s", v)
+		}
+	})
+
+	t.Run("sum", func(t *testing.T) {
+		folder := func(sum int, value int) int { return sum + value }
+		res := FoldLeft(ints, folder).(int)
+		if res != 6 {
+			t.Errorf("was %d", res)
+		}
+	})
+
+	t.Run("with a map", func(t *testing.T) {
+		type record struct {
+			Name  string
+			Count int
+		}
+		list := []*record{
+			{"1", 1},
+			{"2", 2},
+			{"3", 3},
+		}
+		folder := func(m map[string]int, r *record) map[string]int {
+			m[r.Name] = r.Count * 2
+			return m
+		}
+		res := FoldLeft(list, folder).(map[string]int)
+		if v := res["1"]; v != 2 {
+			t.Errorf("%d", v)
+		}
+		if v := res["2"]; v != 4 {
+			t.Errorf("%d", v)
+		}
+	})
+}
+
 func TestGroup(t *testing.T) {
 	records := []*record{
 		{Name: "one", Amount: 1},

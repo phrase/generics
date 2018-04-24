@@ -102,6 +102,45 @@ func Keys(i interface{}) interface{} {
 	return out.Elem().Interface()
 }
 
+// FoldLeft folds ... left
+// FoldLeft([]int{1, 2, 3}, func(list []int{}, value int) []int {
+//   return append(list, value * value)
+// }).([]int) => [1, 4, 6]
+func FoldLeft(col interface{}, folder interface{}) interface{} {
+	ft := reflect.TypeOf(folder)
+	if ft.NumIn() != 2 {
+		panic("folder must have 2 input parameters")
+	}
+	if ft.NumOut() != 1 {
+		panic("folder must have 1 return value")
+	}
+	accType := ft.In(0)
+	outType := ft.Out(0)
+	if accType != outType {
+		panic(fmt.Sprintf("acc type %v must be the same as out type %v", accType, outType))
+	}
+	var ret reflect.Value
+	switch accType.Kind() {
+	case reflect.Map:
+		ret = reflect.MakeMap(accType)
+	case reflect.Slice:
+		ret = reflect.MakeSlice(accType, 0, 0)
+	default:
+		ret = reflect.New(accType).Elem()
+	}
+	v := reflect.ValueOf(col)
+	folderValue := reflect.ValueOf(folder)
+	for i := 0; i < v.Len(); i++ {
+		el := v.Index(i)
+		res := folderValue.Call([]reflect.Value{ret, el})
+		if len(res) != 1 {
+			panic("folder must return 1 result")
+		}
+		ret = res[0]
+	}
+	return ret.Interface()
+}
+
 func Group(i interface{}, fn interface{}) interface{} {
 	el := reflect.ValueOf(i).Type().Elem()
 
