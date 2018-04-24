@@ -37,6 +37,21 @@ func TestSort(t *testing.T) {
 func TestFoldLeft(t *testing.T) {
 	ints := []int{1, 2, 3}
 
+	t.Run("with struct", func(t *testing.T) {
+		type stat struct {
+			Sum int
+		}
+
+		folder := func(s *stat, value int) *stat {
+			s.Sum += value
+			return s
+		}
+		res := FoldLeft(ints, folder).(*stat)
+		if v := res.Sum; v != 6 {
+			t.Errorf("sum is %d", v)
+		}
+	})
+
 	t.Run("square of elements", func(t *testing.T) {
 		folder := func(list []int, value int) []int { return append(list, value*value) }
 		res := FoldLeft(ints, folder).([]int)

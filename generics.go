@@ -119,12 +119,17 @@ func FoldLeft(col interface{}, folder interface{}) interface{} {
 	if accType != outType {
 		panic(fmt.Sprintf("acc type %v must be the same as out type %v", accType, outType))
 	}
+	if accType.Kind() == reflect.Ptr {
+		accType = accType.Elem()
+	}
 	var ret reflect.Value
 	switch accType.Kind() {
 	case reflect.Map:
 		ret = reflect.MakeMap(accType)
 	case reflect.Slice:
 		ret = reflect.MakeSlice(accType, 0, 0)
+	case reflect.Struct:
+		ret = reflect.New(accType)
 	default:
 		ret = reflect.New(accType).Elem()
 	}
