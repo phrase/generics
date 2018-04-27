@@ -322,3 +322,43 @@ func nullType(v reflect.Value) interface{} {
 	}
 	return reflect.New(et).Elem().Interface()
 }
+
+func (c *Collection) Max() float64 {
+	return Max(c.collection)
+}
+
+func (c *Collection) Sum() float64 {
+	return Sum(c.collection)
+}
+
+func Max(in interface{}) (max float64) {
+	for _, v := range toFloats(in) {
+		if v > max {
+			max = v
+		}
+	}
+	return max
+}
+
+func Sum(in interface{}) (sum float64) {
+	for _, v := range toFloats(in) {
+		sum += v
+	}
+	return sum
+}
+
+func toFloats(in interface{}) (out []float64) {
+	v := reflect.ValueOf(in)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	for i := 0; i < v.Len(); i++ {
+		switch c := v.Index(i).Interface().(type) {
+		case float64:
+			out = append(out, c)
+		case int:
+			out = append(out, float64(c))
+		}
+	}
+	return out
+}

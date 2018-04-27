@@ -31,7 +31,31 @@ func TestSort(t *testing.T) {
 			t.Errorf("has was %q", has)
 		}
 	})
+}
 
+func TestSum(t *testing.T) {
+	sum := Sum([]int{1, 2, 3})
+	if sum != 6 {
+		t.Errorf("sum was %v", sum)
+	}
+}
+
+func TestMax(t *testing.T) {
+	max := Max([]int{1, 2, 100, 3})
+	if max != 100.0 {
+		t.Errorf("max was %v", max)
+	}
+}
+
+func TestToFloats(t *testing.T) {
+	res := toFloats([]int{1, 2, 3, 4})
+	if has := fmt.Sprintf("%#v", res); has != "[]float64{1, 2, 3, 4}" {
+		t.Errorf("%s", has)
+	}
+	res = toFloats([]interface{}{1, 2.0, 3, 4.1})
+	if has := fmt.Sprintf("%#v", res); has != "[]float64{1, 2, 3, 4.1}" {
+		t.Errorf("%s", has)
+	}
 }
 
 func TestFoldLeft(t *testing.T) {
