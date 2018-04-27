@@ -340,6 +340,15 @@ func Max(in interface{}) (max float64) {
 	return max
 }
 
+func Min(in interface{}) (min float64) {
+	for _, v := range toFloats(in) {
+		if v < min {
+			min = v
+		}
+	}
+	return min
+}
+
 func Sum(in interface{}) (sum float64) {
 	for _, v := range toFloats(in) {
 		sum += v
