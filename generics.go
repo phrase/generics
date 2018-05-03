@@ -323,14 +323,6 @@ func nullType(v reflect.Value) interface{} {
 	return reflect.New(et).Elem().Interface()
 }
 
-func (c *Collection) Max() float64 {
-	return Max(c.collection)
-}
-
-func (c *Collection) Sum() float64 {
-	return Sum(c.collection)
-}
-
 func Max(in interface{}) (max float64) {
 	for _, v := range toFloats(in) {
 		if v > max {

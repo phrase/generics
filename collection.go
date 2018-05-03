@@ -71,3 +71,15 @@ func (c *Collection) SortReverse(fn interface{}) *Collection {
 func (c *Collection) Len() int {
 	return reflect.ValueOf(c.collection).Len()
 }
+
+func (c *Collection) Max() float64 {
+	return Max(c.collection)
+}
+
+func (c *Collection) Min() float64 {
+	return Min(c.collection)
+}
+
+func (c *Collection) Sum() float64 {
+	return Sum(c.collection)
+}
