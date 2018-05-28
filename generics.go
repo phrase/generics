@@ -177,7 +177,9 @@ func Group(i interface{}, fn interface{}) interface{} {
 
 func Index(i interface{}, fn interface{}) interface{} {
 	el := reflect.ValueOf(i).Type().Elem()
-
+	if el.Kind() == reflect.Slice {
+		el = el.Elem()
+	}
 	sel := el
 	if el.Kind() == reflect.Ptr {
 		sel = sel.Elem()
@@ -188,6 +190,9 @@ func Index(i interface{}, fn interface{}) interface{} {
 	m := reflect.MakeMap(reflect.MapOf(tp, el))
 
 	v := reflect.ValueOf(i)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
 	for i := 0; i < v.Len(); i++ {
 		el := v.Index(i)
 		v := getter(el)
