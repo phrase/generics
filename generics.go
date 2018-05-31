@@ -2,6 +2,7 @@ package generics
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 	"sort"
 	"time"
@@ -351,6 +352,21 @@ func Sum(in interface{}) (sum float64) {
 		sum += v
 	}
 	return sum
+}
+
+func Average(in interface{}) (res float64) {
+	list := toFloats(in)
+	return Sum(list) / float64(len(list))
+}
+
+func Percentile(i interface{}, perc int) float64 {
+	values := toFloats(i)
+	middle := float64(len(values)) * float64(perc) / 100.0
+	floor := int(math.Floor(middle))
+	if len(values) <= floor {
+		panic(fmt.Sprintf("unabel to get idx %d of %v", floor, values))
+	}
+	return values[floor]
 }
 
 func toFloats(in interface{}) (out []float64) {
